@@ -11,12 +11,140 @@
             grid-template-columns: auto auto auto auto;
             padding: 1em;
         }
+        
+        .content-buttons {
+            margin-right: 2em;
+            float: right;
+        }
+        
+        .content-buttons .btn {
+            display: block;
+            margin-bottom: 1em;
+            text-align: right;
+        }
+        
+        .add-box {
+            display: none;
+            position: absolute;
+            padding: 3em;
+            width: 100%;
+            height: 100%;
+            margin: auto auto;
+            background-color: white;
+            box-shadow: 1px 1px 8px gray;
+            z-index: 5;
+        }
+        
+        img {
+            z-index: 3;
+        }
+        
+        .add-box label {
+            display: block;
+            margin-top: 2em;
+        }
+        
+        .add-box h1 {
+            margin-bottom: 1em;
+        }
+        
+        .add-box button {
+            margin-top: 2em;
+        }
+        
+        .add-box .btn-close {
+            float: right;
+        }
+        
+        #adminButton {
+            display: none;
+        }
+        
+        .loginBox {
+            display: none;
+            position: absolute;
+            padding: 3em;
+            width: 100%;
+            height: 100%;
+            margin: auto auto;
+            background-color: white;
+            box-shadow: 1px 1px 8px gray;
+            z-index: 5;
+        }
+        
+        .loginBox label {
+            display: block;
+            margin-top: 2em;
+        }
+        
+        .loginBox h1 {
+            margin-bottom: 1em;
+        }
+        
+        .loginBox .submit {
+            margin-top: 2em;
+        }
+        
+        .loginBox .btn-close {
+            float: right;
+        }
     </style>
 </head>
 
 <body>
     <div id="app">
+        <div class="add-box">
+            <form method="post" action="/criminals/add">
+                <button onclick="hide_criminalInsertPopup()" class="btn btn-close"></button>
+                <h2>Add criminal</h2>
+                <div class="form-group">
+                    <label for="name">Name of criminal</label>
+                    <input type="name" class="form-control" id="criminalNameInput" aria-describedby="nameHelp" placeholder="Enter name">
+                    <small id="nameHelp" class="form-text text-muted">The name of the criminal</small>
+                </div>
+                <div class="form-group">
+                    <label for="">Crime</label>
+                    <input type="crime" class="form-control" id="crimeInput" aria-describedby="crimeHelp" placeholder="Enter crime">
+                    <small id="crimeHelp" class="form-text text-muted">The crime he has commited</small>
+                </div>
+                <div class="form-group">
+                    <label for="">Date of Birth</label>
+                    <input type="dob" class="form-control" id="dobInput" aria-describedby="dobHelp" placeholder="Enter dob">
+                </div>
+                <div class="form-group">
+                    <label for="">Description</label>
+                    <input type="description" class="form-control" id="descriptionInput" aria-describedby="descriptionHelp" placeholder="Describe the criminal">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+        <div class="loginBox">
+            <button onclick="hide_loginBox()" class="btn btn-close"></button>
+            <h2>Login</h2>
+            <form>
+
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input name="name" type="name" class="form-control" id="usernameInput" aria-describedby="nameHelp" placeholder="Enter name">
+                </div>
+                <div class="form-group">
+                    <label for="">Password:</label>
+                    <input name="password" type="password" class="form-control" id="passwordInput" aria-describedby="passwordHelp" placeholder="Enter password">
+                </div>
+                <input @click="login()" type="button" class="submit btn btn-primary" value="Submit">
+                <p> {{ loginError }} </p>
+            </form>
+        </div>
+
         <h1 style="text-align: center;">In custody or prison</h1>
+        <div class="content-buttons">
+            <button onclick="show_loginBox()" id="loginBtn" class="btn btn-dark">Login</button>
+            <button @click="logout()" id="adminButton" class="btn btn-dark">Logout</button>
+            <button onclick="show_criminalInsertPopup()" id="adminButton" class="btn btn-dark">Add Criminal</button>
+        </div>
+
+
         <!--
         <table id="criminalsTable" class="table table-striped table-bordered">
             <tr>
@@ -29,9 +157,11 @@
             </tr>
         </table>
         -->
+
+
         <div class="auto-grid-3">
             <div v-for="criminal in criminals" class="card" style="width: 18rem;">
-                <img class="card-img-top" src="https://www.johnmbrooks.com/wp-content/uploads/2017/05/placeholder-300x300.png" alt="Card image cap">
+                <img class="card-img-top" style="height: 18rem;" v-bind:src="'images/' + criminal.img_link" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">{{ criminal.name }}</h5>
                     <p class="card-text">{{ criminal.crime }}</p>
@@ -45,21 +175,78 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js " integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p " crossorigin="anonymous "></script>
 <script src="https://unpkg.com/vue@3 "></script>
 <script>
+    function show_criminalInsertPopup() {
+        document.querySelector(".add-box").style.display = "block"
+    }
+
+    function hide_criminalInsertPopup() {
+        document.querySelector(".add-box").style.display = "none"
+    }
+
+    function show_loginBox() {
+        document.querySelector(".loginBox").style.display = "block"
+    }
+
+    function hide_loginBox() {
+        document.querySelector(".loginBox").style.display = "none"
+    }
+
     const vue = Vue.createApp({
         data() {
             return {
-                criminals: []
+                criminals: [],
+                admin: false,
+                loginError: ""
             }
         },
         async created() {
             this.criminals = await (await fetch('http://localhost:6661/criminals')).json();
+            // admin check for admin rights
+            this.admin = await (await fetch('http://localhost:6661/adminCheck')).json();
+            if (this.admin == true) {
+                document.querySelector("#loginBtn").style.display = "none";
+                var cols = document.querySelectorAll('#adminButton');
+                for (i = 0; i < cols.length; i++) {
+                    cols[i].style.display = "block";
+                }
+            }
+        },
+        methods: {
+            login: async function() {
+                var username_value = document.querySelector("#usernameInput").value
+                var password_value = document.querySelector("#passwordInput").value
+                const requestOptions = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username_value,
+                        password: password_value
+                    })
+                };
+                await fetch("http://localhost:6661/login", requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error)
+                            this.loginError = data.error;
+                        if (data == true) {
+                            window.location.reload()
+                        }
+                    });
+            },
+            logout: async function() {
+                const requestOptions = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                };
+                await fetch("http://localhost:6661/logout", requestOptions)
+                    .then(window.location.reload());
+            }
         }
     }).mount('#app')
-</script>
-<script>
-    function saveIndex(index) {
-        sessionStorage.setItem("criminal_id ", index);
-    }
 </script>
 
 </html>
