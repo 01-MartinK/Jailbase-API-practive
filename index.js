@@ -65,6 +65,13 @@ app.post('/login', (req, res) => {
         res.send({ error: "wrong credentials" })
 })
 
+app.post('/editCriminal', (req, res) => {
+    criminals[req.body.index - 1].name = req.body.name
+    criminals[req.body.index - 1].crime = req.body.crime
+    criminals[req.body.index - 1].dob = req.body.dob
+    criminals[req.body.index - 1].long_desc = req.body.desc
+})
+
 app.post('/logout', (req, res) => {
     adminIn = false
 })
