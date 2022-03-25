@@ -5,7 +5,7 @@ const port = 6661;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
 
-const criminals = [
+var criminals = [
     { id: 1, name: 'Vin Diesel', crime: 'Speeding', img_link: 'vin-diesel.jpg', dob: "1976-01-12", long_desc: 'Wanted for speeding countlesly in the fast and furious series.' },
     { id: 2, name: 'Henry', crime: 'Racism', img_link: 'henry.jpg', dob: "2004-02-18", long_desc: 'Henry is a natural racist' },
     { id: 3, name: 'Jason Voorhees', crime: 'Murder', img_link: 'jason-voorhees.jpg', dob: "1956-06-24", long_desc: "Jason Voorhees is a third-degree murderer. He's prime spot for killing is a camping site." },
@@ -16,7 +16,7 @@ const credentials = {
     password: "qwerty"
 }
 
-var adminIn = false
+var adminIn = true
 
 app.use(cors())
 app.use(express.json())
@@ -36,8 +36,24 @@ app.get('/adminCheck', (req, res) => {
 app.post('/criminals/add', (req, res) => {
     var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.description }
     criminals.push(criminal)
-    console.log(criminal)
-    console.log(criminals)
+})
+
+app.post('/criminals/delete', (req, res) => {
+    console.log(req.body.crim_id)
+    var crim_id = req.body.crim_id;
+    var new_list = [];
+    criminals.forEach(crim => {
+        if (crim.id !== crim_id)
+            new_list.push(crim)
+    })
+    criminals = new_list
+
+    // reset all of their id's
+    var i = 1
+    criminals.forEach(crim => {
+        crim.id = i
+        i += 1
+    })
 })
 
 app.post('/login', (req, res) => {

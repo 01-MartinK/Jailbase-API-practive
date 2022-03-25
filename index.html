@@ -165,15 +165,44 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ criminal.name }}</h5>
                     <p class="card-text">{{ criminal.crime }}</p>
-                    <a v-bind:href="'criminal.html?test='+ criminal.id" class="btn btn-primary ">More Details</a>
+                    <button type="button" class="btn btn-primary btn-lg" @click='getById(criminal.id)' data-bs-toggle="modal" data-bs-target="#modelId">More Details</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <form>
+
+                        </form>
+                        <h5 class="modal-title" id="detCrimName">Modal title</h5>
+                        <h6 class="modal-title" id="detCrimCrime">|murder</h6>
+                        <h6 class="modal-title" id="detCrimDob">|2015-32-12</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            </button>
+                    </div>
+                    <div class="modal-body" id="detCrimDesc">
+                        Body
+                    </div>
+                    <div class="modal-footer">
+                        <button id="adminButton" type="button" class="btn btn-primary">Edit Criminal</button>
+                        <button id="adminButton" type="button" @click="deleteCriminal()" class="btn btn-primary">Delete Criminal</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <p id="detCrimId">1</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js " integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p " crossorigin="anonymous "></script>
 <script src="https://unpkg.com/vue@3 "></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function show_criminalInsertPopup() {
         document.querySelector(".add-box").style.display = "block"
@@ -196,6 +225,7 @@
             return {
                 criminals: [],
                 admin: false,
+                index: 0,
                 loginError: ""
             }
         },
@@ -266,6 +296,28 @@
                 };
                 await fetch("http://localhost:6661/criminals/add", requestOptions)
                     .then(window.location.reload())
+            },
+            getById: async function(id) {
+                this.index = id
+                console.log(id - 1)
+                document.querySelector("#detCrimName").textContent = this.criminals[id - 1].name
+                document.querySelector("#detCrimCrime").textContent = "|" + this.criminals[id - 1].crime
+                document.querySelector("#detCrimDob").textContent = "|" + this.criminals[id - 1].dob
+                document.querySelector("#detCrimDesc").textContent = this.criminals[id - 1].long_desc
+                document.querySelector("#detCrimId").textContent = id
+            },
+            deleteCriminal: async function(id) {
+                console.log(this.index)
+                await fetch("http://localhost:6661/criminals/delete", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        crim_id: this.index,
+                    })
+                }).then(window.location.reload())
+
             }
         }
     }).mount('#app')
