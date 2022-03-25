@@ -36,6 +36,8 @@ app.get('/adminCheck', (req, res) => {
 app.post('/criminals/add', (req, res) => {
     var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.description }
     criminals.push(criminal)
+    console.log(criminal)
+    console.log(criminals)
 })
 
 app.post('/login', (req, res) => {
