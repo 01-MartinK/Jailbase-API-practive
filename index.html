@@ -115,7 +115,7 @@
                     <label for="">Description</label>
                     <input type="description" class="form-control" id="descriptionInput" aria-describedby="descriptionHelp" placeholder="Describe the criminal">
                 </div>
-                <button @click="addCriminal()" class="btn btn-primary">Submit</button>
+                <button @click="addCriminal()" class="btn btn-primary" type="button">Submit</button>
             </form>
         </div>
 
@@ -316,7 +316,9 @@
                     }
                 };
                 await fetch("http://localhost:6661/logout", requestOptions)
-                    .then(window.location.reload());
+                    .then(() => {
+                        window.location.reload();
+                    })
             },
             addCriminal: async function() {
                 var name_value = document.querySelector("#criminalNameInput").value
@@ -324,7 +326,7 @@
                 var dob_value = document.querySelector("#dobInput").value
                 var desc_value = document.querySelector("#descriptionInput").value
 
-                const requestOptions = {
+                const request = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -336,9 +338,12 @@
                         img_link: "placeholder-300x300.webp",
                         long_desc: desc_value,
                     })
-                };
-                await fetch("http://localhost:6661/criminals/add", requestOptions)
-                    .then(window.location.reload())
+                }
+
+                await fetch("http://localhost:6661/criminals/add", request)
+                    .then(() => {
+                        window.location.reload();
+                    })
             },
             getById: async function(id) {
                 this.index = id
@@ -372,7 +377,9 @@
                         dob: crimDob,
                         desc: crimDesc
                     })
-                }).then(window.location.reload())
+                }).then(() => {
+                    window.location.reload();
+                })
             },
             deleteCriminal: async function(id) {
                 console.log(this.index)
@@ -384,7 +391,9 @@
                     body: JSON.stringify({
                         crim_id: this.index,
                     })
-                }).then(window.location.reload())
+                }).then(() => {
+                    window.location.reload();
+                })
 
             }
         }

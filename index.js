@@ -34,8 +34,11 @@ app.get('/adminCheck', (req, res) => {
 })
 
 app.post('/criminals/add', (req, res) => {
-    var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.description }
+    console.log(req.body)
+    var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc }
     criminals.push(criminal)
+
+    res.send("correct")
 })
 
 app.post('/criminals/delete', (req, res) => {
@@ -54,6 +57,7 @@ app.post('/criminals/delete', (req, res) => {
         crim.id = i
         i += 1
     })
+    res.send("correct")
 })
 
 app.post('/login', (req, res) => {
@@ -70,10 +74,14 @@ app.post('/editCriminal', (req, res) => {
     criminals[req.body.index - 1].crime = req.body.crime
     criminals[req.body.index - 1].dob = req.body.dob
     criminals[req.body.index - 1].long_desc = req.body.desc
+
+    res.send("correct")
 })
 
 app.post('/logout', (req, res) => {
     adminIn = false
+
+    res.send("correct")
 })
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
