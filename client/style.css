@@ -1,0 +1,83 @@
+/* MAIN CSS FILE FOR STYLIZATION*/
+.auto-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 1em;
+}
+
+.content-buttons {
+    margin-right: 2em;
+    float: right;
+}
+
+.content-buttons .btn {
+    display: block;
+    margin-bottom: 1em;
+    text-align: right;
+}
+
+.add-box {
+    display: none;
+    position: absolute;
+    padding: 3em;
+    width: 100%;
+    height: 100%;
+    margin: auto auto;
+    background-color: white;
+    box-shadow: 1px 1px 8px gray;
+    z-index: 5;
+}
+
+img {
+    z-index: 3;
+}
+
+.add-box label {
+    display: block;
+    margin-top: 2em;
+}
+
+.add-box h1 {
+    margin-bottom: 1em;
+}
+
+.add-box button {
+    margin-top: 2em;
+}
+
+.add-box .btn-close {
+    float: right;
+}
+
+#adminButton {
+    display: none;
+}
+
+.loginBox {
+    display: none;
+    position: absolute;
+    padding: 3em;
+    width: 100%;
+    height: 100%;
+    margin: auto auto;
+    background-color: white;
+    box-shadow: 1px 1px 8px gray;
+    z-index: 5;
+}
+
+.loginBox label {
+    display: block;
+    margin-top: 2em;
+}
+
+.loginBox h1 {
+    margin-bottom: 1em;
+}
+
+.loginBox .submit {
+    margin-top: 2em;
+}
+
+.loginBox .btn-close {
+    float: right;
+}

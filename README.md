@@ -16,6 +16,3 @@ API-is running after that.
 <br>
 <br>
 Now just open the index.html file.
-
-<h3 style="color:red;">Problems<h3>
-For some reason it doesn't work in firefox.
