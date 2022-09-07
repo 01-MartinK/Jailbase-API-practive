@@ -92,19 +92,17 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <form>
-
-                        </form>
                         <h5 class="modal-title" id="detCrimName">Modal title</h5>
-                        <h6 class="modal-title" id="detCrimCrime">|murder</h6>
-                        <h6 class="modal-title" id="detCrimDob">|2015-32-12</h6>
+                        <h6 class="modal-title" id="detCrimDob"> | 2015-32-12</h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             </button>
                     </div>
-                    <div class="modal-body" id="detCrimDesc">
-                        Body
+                    <div class="modal-body">
+                        <p id="detCrimCrime"></p>
+                        <p id="detCrimDesc" ></p>
                     </div>
                     <div class="modal-footer">
+                        <button id="adminButton" type="button" @click="assignCell()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cellModel">Assign Cell</button>
                         <button id="adminButton" type="button" @click="edit()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModel">Edit Criminal</button>
                         <button id="adminButton" type="button" @click="deleteCriminal()" class="btn btn-primary">Delete Criminal</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -119,9 +117,6 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <form>
-
-                        </form>
                         <h5 class="modal-title">Edit Criminal</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             </button>
@@ -150,7 +145,31 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-info" @click="finalizeEdit" data-bs-dismiss="modal">Save</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Forget</button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modelId" data-bs-dismiss="modal">Forget</button>
+                        <p id="detCrimId">1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign criminal Cell -->
+        <div class="modal fade" id="cellModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add to Cell</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="CellGroup">
+                            <div v-for="num in 24">
+                                <button id="cellButton">cell{{num}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modelId" data-bs-dismiss="modal">Save</button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modelId" data-bs-dismiss="modal">Back</button>
                         <p id="detCrimId">1</p>
                     </div>
                 </div>

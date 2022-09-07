@@ -81,3 +81,26 @@ img {
 .loginBox .btn-close {
     float: right;
 }
+
+#CellGroup {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto;
+    gap: 8px;
+}
+
+#cellButton {
+    width: 64px;
+    height: 64px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0px 0px 4px gray;
+}
+
+#cellButton:hover {
+    cursor: pointer;
+    border: 3px solid skyblue;
+}
+
+.selectedCell {
+    background-color: maroon;
+}

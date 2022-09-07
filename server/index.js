@@ -23,19 +23,23 @@ var adminIn = true
 app.use(cors())
 app.use(express.json())
 
+// Get all the criminals
 app.get('/criminals', (req, res) => {
     res.send(criminals)
     console.log(criminals)
 })
 
+// Send criminal data to client
 app.get('/criminals/:id', (req, res) => {
     res.send(criminals[req.params.id - 1])
 });
 
+// On admin check
 app.get('/adminCheck', (req, res) => {
     res.send(adminIn)
 })
 
+// On Criminal add
 app.post('/criminals/add', (req, res) => {
     console.log(req.body)
     var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc }
@@ -44,6 +48,7 @@ app.post('/criminals/add', (req, res) => {
     res.send("correct")
 })
 
+// On criminal Delete
 app.post('/criminals/delete', (req, res) => {
     console.log(req.body.crim_id)
     var crim_id = req.body.crim_id;
@@ -63,6 +68,7 @@ app.post('/criminals/delete', (req, res) => {
     res.send("correct")
 })
 
+// On login
 app.post('/login', (req, res) => {
     console.log(req.body)
     if (req.body.username == credentials.username && req.body.password == credentials.password) {
@@ -72,6 +78,7 @@ app.post('/login', (req, res) => {
         res.send({ error: "wrong credentials" })
 })
 
+// On edit criminal
 app.post('/editCriminal', (req, res) => {
     criminals[req.body.index - 1].name = req.body.name
     criminals[req.body.index - 1].crime = req.body.crime
@@ -81,14 +88,17 @@ app.post('/editCriminal', (req, res) => {
     res.send("correct")
 })
 
+// On user logout
 app.post('/logout', (req, res) => {
     adminIn = false
 
     res.send("correct")
 })
 
+// Use the swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// listen to a specific port
 app.listen(port, () => {
     console.log(`API up at: http://localhost:${port}`)
 });

@@ -101,8 +101,8 @@
                 this.index = id
                 console.log(id - 1)
                 document.querySelector("#detCrimName").textContent = this.criminals[id - 1].name
-                document.querySelector("#detCrimCrime").textContent = "|" + this.criminals[id - 1].crime
-                document.querySelector("#detCrimDob").textContent = "|" + this.criminals[id - 1].dob
+                document.querySelector("#detCrimCrime").textContent = "Crime commited: " + this.criminals[id - 1].crime
+                document.querySelector("#detCrimDob").textContent = ".  " + this.criminals[id - 1].dob
                 document.querySelector("#detCrimDesc").textContent = this.criminals[id - 1].long_desc
                 document.querySelector("#detCrimId").textContent = id
             },
