@@ -88,7 +88,8 @@ img {
     gap: 8px;
 }
 
-#cellButton {
+.cellButton {
+    font-size: 12px;
     width: 64px;
     height: 64px;
     border: none;
@@ -96,7 +97,7 @@ img {
     box-shadow: 0px 0px 4px gray;
 }
 
-#cellButton:hover {
+.cellButton:hover {
     cursor: pointer;
     border: 3px solid skyblue;
 }

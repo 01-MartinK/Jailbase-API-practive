@@ -1,3 +1,4 @@
+// prequsitions
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -17,6 +18,12 @@ const credentials = {
     username: "admin",
     password: "qwerty"
 };
+
+var prisonerCells = []
+
+for (let i = 0; i < 24; i++) {
+    prisonerCells.push({id: i, prisoner: -1})
+}
 
 var adminIn = true
 
@@ -99,6 +106,40 @@ app.post('/logout', (req, res) => {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // listen to a specific port
-app.listen(port, () => {
+server = app.listen(port, () => {
     console.log(`API up at: http://localhost:${port}`)
 });
+
+// websocket io
+const io = require("socket.io")(server, {cors: { origin: "*"}})
+
+io.on('connection', socket => {
+    console.log("A new client has connected");
+    io.emit('update_cells', prisonerCells)
+
+    socket.on('cell_changed', data => {
+        
+        //console.log( prisonerCells[data.cell_id] )
+        if (prisonerCells[data.cell_id].prisoner == -1) {
+            removeFromOtherCell(data.prisoner)
+            prisonerCells[data.cell_id] = {id: data.cell_id, prisoner: data.prisoner};
+        }
+        else if (prisonerCells[data.cell_id].prisoner == data.prisoner)
+            prisonerCells[data.cell_id] = {id: data.cell_id, prisoner: -1};
+        //console.log( prisonerCells[data.cell_id])
+
+        io.emit('update_cells', prisonerCells)
+    })
+})
+
+// remove the current prisoner from other cells
+function removeFromOtherCell(prisoner_id) {
+    //console.log("find prisoner")
+    //console.log(prisoner_id)
+    prisonerCells.forEach(prisonerCell => {
+        if (prisonerCell.prisoner == prisoner_id) {
+            console.log("found prisoner")
+            prisonerCell.prisoner = -1
+        }
+    })
+}
