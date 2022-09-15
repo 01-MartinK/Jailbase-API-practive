@@ -5,6 +5,7 @@ const cors = require('cors');
 const port = 6661;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
+app.use(express.json());
 
 // template database with criminals
 var criminals = [
@@ -14,10 +15,11 @@ var criminals = [
 ];
 
 // admin credentials
-const credentials = {
-    username: "admin",
-    password: "qwerty"
-};
+const credentials = [
+    {id: 1, username: "admin", password: "qwerty", isAdmin: true}
+]
+
+let sessions = []
 
 var prisonerCells = []
 
@@ -25,15 +27,13 @@ for (let i = 0; i < 24; i++) {
     prisonerCells.push({id: i, prisoner: -1})
 }
 
-var adminIn = true
-
 app.use(cors())
 app.use(express.json())
 
 // Get all the criminals
 app.get('/criminals', (req, res) => {
     res.send(criminals)
-    console.log(criminals)
+    //console.log(criminals)
 })
 
 // Send criminal data to client
@@ -43,63 +43,32 @@ app.get('/criminals/:id', (req, res) => {
 
 // On admin check
 app.get('/adminCheck', (req, res) => {
-    res.send(adminIn)
-})
-
-// On Criminal add
-app.post('/criminals/add', (req, res) => {
-    console.log(req.body)
-    var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc }
-    criminals.push(criminal)
-
-    res.send("correct")
-})
-
-// On criminal Delete
-app.post('/criminals/delete', (req, res) => {
-    console.log(req.body.crim_id)
-    var crim_id = req.body.crim_id;
-    var new_list = [];
-    criminals.forEach(crim => {
-        if (crim.id !== crim_id)
-            new_list.push(crim)
-    })
-    criminals = new_list
-
-    // reset all of their id's
-    var i = 1
-    criminals.forEach(crim => {
-        crim.id = i
-        i += 1
-    })
-    res.send("correct")
+    res.send(sessions)
 })
 
 // On login
 app.post('/login', (req, res) => {
-    console.log(req.body)
-    if (req.body.username == credentials.username && req.body.password == credentials.password) {
-        adminIn = true
-        res.send("true")
+    const user = credentials.find((user) => user.username === req.body.username && user.password === req.body.password)
+    if (req.body.username == user.username && req.body.password == user.password) {
+        let newSession = {
+            id: sessions.length + 1,
+            userId: user.id,
+            isAdmin: user.isAdmin
+        }
+        sessions.push(newSession)
+        res.status(201).send(
+            {sessionId: sessions.length}
+        )
     } else
         res.send({ error: "wrong credentials" })
 })
 
-// On edit criminal
-app.post('/editCriminal', (req, res) => {
-    criminals[req.body.index - 1].name = req.body.name
-    criminals[req.body.index - 1].crime = req.body.crime
-    criminals[req.body.index - 1].dob = req.body.dob
-    criminals[req.body.index - 1].long_desc = req.body.desc
-
-    res.send("correct")
-})
-
 // On user logout
 app.post('/logout', (req, res) => {
-    adminIn = false
+    sessions = sessions.filter((session) => session.id != req.body.sessionId);
 
     res.send("correct")
+    res.status(200).end()
 })
 
 // Use the swagger UI
@@ -116,6 +85,48 @@ const io = require("socket.io")(server, {cors: { origin: "*"}})
 io.on('connection', socket => {
     console.log("A new client has connected");
     io.emit('update_cells', prisonerCells)
+
+    // On criminal Delete
+    app.post('/criminals/delete', (req, res) => {
+        console.log(req.body.crim_id)
+        var crim_id = req.body.crim_id;
+        var new_list = [];
+        criminals.forEach(crim => {
+            if (crim.id !== crim_id)
+                new_list.push(crim)
+        })
+        criminals = new_list
+
+        // reset all of their id's
+        var i = 1
+        criminals.forEach(crim => {
+            crim.id = i
+            i += 1
+        })
+        res.send("correct")
+        io.emit('update_prisoner', criminals)
+    })
+
+    // On edit criminal
+    app.post('/editCriminal', (req, res) => {
+        criminals[req.body.index - 1].name = req.body.name
+        criminals[req.body.index - 1].crime = req.body.crime
+        criminals[req.body.index - 1].dob = req.body.dob
+        criminals[req.body.index - 1].long_desc = req.body.desc
+
+        res.send("correct")
+        io.emit('update_prisoner', criminals)
+    })
+
+    // On Criminal add
+    app.post('/criminals/add', (req, res) => {
+        console.log(req.body)
+        var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc }
+        criminals.push(criminal)
+
+        res.send("correct")
+        io.emit('update_prisoner', criminals)
+    })
 
     socket.on('cell_changed', data => {
         

@@ -22,6 +22,7 @@ const vue = Vue.createApp({
             admin: false,
             index: 0,
             loginError: "",
+            sessionId: null,
             socket: null
         }
     },
@@ -39,16 +40,27 @@ const vue = Vue.createApp({
             //console.log(cellData);
         });
 
+        this.socket.on('update_prisoner', (prisonerData) => {
+            this.criminals = prisonerData
+        })
+
+        this.sessionId = localStorage.getItem('sessionId');
+
         this.criminals = await (await fetch('http://localhost:6661/criminals')).json();
         // admin check for admin rights
-        this.admin = await (await fetch('http://localhost:6661/adminCheck')).json();
-        if (this.admin == true) {
-            document.querySelector("#loginBtn").style.display = "none";
-            var cols = document.querySelectorAll('#adminButton');
-            for (i = 0; i < cols.length; i++) {
-                cols[i].style.display = "block";
+        this.users = await (await fetch('http://localhost:6661/adminCheck')).json();
+        this.user = this.users.find((user) => user.id == this.sessionId)
+        
+        if (this.user) {
+            if (this.user.isAdmin == true) {
+                document.querySelector("#loginBtn").style.display = "none";
+                var cols = document.querySelectorAll('#adminButton');
+                for (i = 0; i < cols.length; i++) {
+                    cols[i].style.display = "block";
+                }
             }
         }
+
     },
     socket: {
         connect: () => {console.log("connected")}
@@ -70,10 +82,17 @@ const vue = Vue.createApp({
             await fetch("http://localhost:6661/login", requestOptions)
             .then(response => response.json())
             .then(data => {
+                
                 if (data.error)
                 this.loginError = data.error;
-                if (data == true) {
-                    window.location.reload()
+                if (data.sessionId) {
+                    this.sessionId = data.sessionId;
+                    localStorage.setItem('sessionId', this.sessionId);
+                    if (data.isAdmin == true) {
+                        this.admin = true
+                    }
+                    console.log(this.admin)
+                    window.location.reload();
                 }
             });
         },
@@ -82,10 +101,15 @@ const vue = Vue.createApp({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
-                }
+                },
+                body: JSON.stringify({
+                    sessionId: Number(this.sessionId)
+                })
             };
             await fetch("http://localhost:6661/logout", requestOptions)
             .then(() => {
+                this.sessionId = null;
+                localStorage.clear();
                 window.location.reload();
             })
         },
