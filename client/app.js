@@ -42,6 +42,7 @@ const vue = Vue.createApp({
 
         this.socket.on('update_prisoner', (prisonerData) => {
             this.criminals = prisonerData
+            this.getById(this.index)
         })
 
         this.sessionId = localStorage.getItem('sessionId');
@@ -146,9 +147,6 @@ const vue = Vue.createApp({
             document.querySelector("#detCrimDob").textContent = ".  " + this.criminals[id - 1].dob
             document.querySelector("#detCrimDesc").textContent = this.criminals[id - 1].long_desc
             document.querySelector("#detCrimId").textContent = id
-        },
-        getCells: async function() {
-            
         },
         updateCells: async function() {
             if (prisonerCells.length != 0) {
