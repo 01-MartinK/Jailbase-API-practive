@@ -19,6 +19,12 @@ const credentials = [
     {id: 1, username: "admin", password: "qwerty", isAdmin: true}
 ]
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+
 let sessions = []
 
 var prisonerCells = []

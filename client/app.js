@@ -30,7 +30,7 @@ const vue = Vue.createApp({
         this.socket = io.connect("http://localhost:6661");
 
         this.socket.on('connect', () => {
-            console.clear()
+            //console.clear()
             console.log("connected to server");
         });
 
@@ -43,11 +43,21 @@ const vue = Vue.createApp({
         this.socket.on('update_prisoner', (prisonerData) => {
             this.criminals = prisonerData
             this.getById(this.index)
+            this.saveToLocalStorage()
         })
 
         this.sessionId = localStorage.getItem('sessionId');
 
-        this.criminals = await (await fetch('http://localhost:6661/criminals')).json();
+        var t = localStorage.getItem('Criminals');
+        this.criminals = JSON.parse(t)
+
+        try {
+            this.criminals = await (await fetch('http://localhost:6661/criminals')).json();
+            this.saveToLocalStorage()
+        } catch(problem){
+            console.log(problem)
+        }
+        
         // admin check for admin rights
         this.users = await (await fetch('http://localhost:6661/adminCheck')).json();
         this.user = this.users.find((user) => user.id == this.sessionId)
@@ -168,7 +178,11 @@ const vue = Vue.createApp({
             document.querySelector("#dobUpdInput").value = this.criminals[this.index - 1].dob
             document.querySelector("#descriptionUpdInput").value = this.criminals[this.index - 1].long_desc
         },
+        saveToLocalStorage: async function() {
+            localStorage.setItem('Criminals', JSON.stringify(this.criminals));
+        },
         finalizeEdit: async function() {
+            
             var crimName = document.querySelector("#criminalNameUpdInput").value
             var crimCrime = document.querySelector("#crimeUpdInput").value
             var crimDob = document.querySelector("#dobUpdInput").value
