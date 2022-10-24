@@ -27,7 +27,7 @@ const vue = Vue.createApp({
         }
     },
     async created() {
-        this.socket = io.connect("http://localhost:6661");
+        this.socket = io.connect("https://localhost:6661");
 
         this.socket.on('connect', () => {
             //console.clear()
@@ -52,14 +52,14 @@ const vue = Vue.createApp({
         this.criminals = JSON.parse(t)
 
         try {
-            this.criminals = await (await fetch('http://localhost:6661/criminals')).json();
+            this.criminals = await (await fetch('https://localhost:6661/criminals')).json();
             this.saveToLocalStorage()
         } catch(problem){
             console.log(problem)
         }
         
         // admin check for admin rights
-        this.users = await (await fetch('http://localhost:6661/adminCheck')).json();
+        this.users = await (await fetch('https://localhost:6661/adminCheck')).json();
         this.user = this.users.find((user) => user.id == this.sessionId)
         
         if (this.user) {
@@ -90,7 +90,7 @@ const vue = Vue.createApp({
                     password: password_value
                 })
             };
-            await fetch("http://localhost:6661/login", requestOptions)
+            await fetch("https://localhost:6661/login", requestOptions)
             .then(response => response.json())
             .then(data => {
                 
@@ -117,7 +117,7 @@ const vue = Vue.createApp({
                     sessionId: Number(this.sessionId)
                 })
             };
-            await fetch("http://localhost:6661/logout", requestOptions)
+            await fetch("https://localhost:6661/logout", requestOptions)
             .then(() => {
                 this.sessionId = null;
                 localStorage.clear();
@@ -144,7 +144,7 @@ const vue = Vue.createApp({
                 })
             }
             
-            await fetch("http://localhost:6661/criminals/add", request)
+            await fetch("https://localhost:6661/criminals/add", request)
             .then(() => {
                 window.location.reload();
             })
@@ -187,7 +187,7 @@ const vue = Vue.createApp({
             var crimCrime = document.querySelector("#crimeUpdInput").value
             var crimDob = document.querySelector("#dobUpdInput").value
             var crimDesc = document.querySelector("#descriptionUpdInput").value
-            await fetch("http://localhost:6661/editCriminal", {
+            await fetch("https://localhost:6661/editCriminal", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -210,7 +210,7 @@ const vue = Vue.createApp({
     },
     deleteCriminal: async function(id) {
         console.log(this.index)
-        await fetch("http://localhost:6661/criminals/delete", {
+        await fetch("https://localhost:6661/criminals/delete", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

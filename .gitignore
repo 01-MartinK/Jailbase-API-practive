@@ -1,3 +1,6 @@
 .idea/
 .vscode/
 server/node_modules/
+server/cert.pem
+server/csr.pem
+server/key.pem

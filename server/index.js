@@ -1,11 +1,21 @@
 // prequsitions
 const express = require('express');
+const https = require("https");
 const app = express();
+const fs = require("fs");
 const cors = require('cors');
 const port = 6661;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
 app.use(express.json());
+
+const serv = https.createServer({
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem")
+    },
+    app).listen(port, () => {
+        console.log(`API up at: https://localhost:${port}`)
+});
 
 // template database with criminals
 var criminals = [
@@ -80,13 +90,8 @@ app.post('/logout', (req, res) => {
 // Use the swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// listen to a specific port
-server = app.listen(port, () => {
-    console.log(`API up at: http://localhost:${port}`)
-});
-
 // websocket io
-const io = require("socket.io")(server, {cors: { origin: "*"}})
+const io = require("socket.io")(serv, {cors: { origin: "*"}})
 
 io.on('connection', socket => {
     console.log("A new client has connected");
