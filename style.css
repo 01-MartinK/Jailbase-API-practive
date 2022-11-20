@@ -1,0 +1,128 @@
+/* MAIN CSS FILE FOR STYLIZATION*/
+.navbar-brand {
+    margin-left: 1em;
+    font-size: 1.5em;
+}
+
+.auto-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 1em;
+}
+
+.content-buttons {
+    margin-right: 2em;
+    float: right;
+}
+
+.content-buttons .btn {
+    display: block;
+    margin-bottom: 1em;
+    text-align: right;
+}
+
+.add-box {
+    display: none;
+    position: absolute;
+    padding: 3em;
+    width: 100%;
+    height: 100%;
+    margin: auto auto;
+    background-color: white;
+    box-shadow: 1px 1px 8px gray;
+    z-index: 5;
+}
+
+img {
+    z-index: 3;
+}
+
+.add-box label {
+    display: block;
+    margin-top: 2em;
+}
+
+.add-box h1 {
+    margin-bottom: 1em;
+}
+
+.add-box button {
+    margin-top: 2em;
+}
+
+.add-box .btn-close {
+    float: right;
+}
+
+#adminButton {
+    display: none;
+    
+}
+
+.specialButtons {
+    background: none;
+    border: none;
+    color: aliceblue;
+    margin-right: 1em;
+}
+
+#loginBtn {
+    padding: 1em;
+    background: none;
+    border: none;
+    color: aliceblue;
+}
+
+.loginBox {
+    display: none;
+    position: absolute;
+    padding: 3em;
+    width: 50%;
+    height: auto;
+    margin: 12em 25%;
+    border: 1px solid black;
+    background-color: white;
+    box-shadow: 1px 1px 8px gray;
+    z-index: 5;
+}
+
+.loginBox label {
+    display: block;
+    margin-top: 2em;
+}
+
+.loginBox h1 {
+    margin-bottom: 1em;
+}
+
+.loginBox .submit {
+    margin-top: 2em;
+}
+
+.loginBox .btn-close {
+    float: right;
+}
+
+#CellGroup {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto;
+    gap: 8px;
+}
+
+.cellButton {
+    font-size: 12px;
+    width: 64px;
+    height: 64px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0px 0px 4px gray;
+}
+
+.cellButton:hover {
+    cursor: pointer;
+    border: 3px solid skyblue;
+}
+
+.selectedCell {
+    background-color: maroon;
+}

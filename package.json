@@ -11,7 +11,11 @@
   "dependencies": {
     "all": "^0.0.0",
     "cors": "^2.8.5",
+    "csv-parse": "^5.3.2",
+    "date-and-time": "^2.4.1",
     "express": "^4.17.3",
+    "fast-csv": "^4.3.6",
+    "google-auth-library": "^8.7.0",
     "socket.io": "^4.5.2",
     "swagger-ui-express": "^4.3.0"
   }

@@ -1,6 +1,7 @@
 .idea/
 .vscode/
-server/node_modules/
-server/cert.pem
-server/csr.pem
-server/key.pem
+node_modules/
+cert.pem
+csr.pem
+key.pem
+log.csv

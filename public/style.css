@@ -1,4 +1,9 @@
 /* MAIN CSS FILE FOR STYLIZATION*/
+.navbar-brand {
+    margin-left: 1em;
+    font-size: 1.5em;
+}
+
 .auto-grid-3 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -51,15 +56,31 @@ img {
 
 #adminButton {
     display: none;
+    
+}
+
+.specialButtons {
+    background: none;
+    border: none;
+    color: aliceblue;
+    margin-right: 1em;
+}
+
+#loginBtn {
+    margin-right: 1em;
+    background: none;
+    border: none;
+    color: aliceblue;
 }
 
 .loginBox {
     display: none;
     position: absolute;
     padding: 3em;
-    width: 100%;
-    height: 100%;
-    margin: auto auto;
+    width: 50%;
+    height: auto;
+    margin: 3em 25%;
+    border: 1px solid black;
     background-color: white;
     box-shadow: 1px 1px 8px gray;
     z-index: 5;
