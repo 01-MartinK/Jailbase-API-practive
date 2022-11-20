@@ -7,7 +7,9 @@ const cors = require('cors');
 const port = 6661;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
+const {OAuth2Client} = require('google-auth-library');
 const { dirname } = require('path');
+const googleOAuth2Client = new OAuth2Client('912715567165-2afmr3fv7elcfu973991pq88ihbc8qdj.apps.googleusercontent.com');
 
 // for logging events
 const logger = require('./logger.js');
@@ -77,6 +79,45 @@ app.get('/adminCheck', (req, res) => {
 app.get('/logs', (req, res) => {
     let logsData = logger.getLogs()
     res.send(logsData)
+});
+
+// get data from google token
+async function getDataFromGoogleJwt(token) {
+    const ticket = await googleOAuth2Client.verifyIdToken({
+        idToken: token,
+        audience: '912715567165-2afmr3fv7elcfu973991pq88ihbc8qdj.apps.googleusercontent.com',
+    });
+    return ticket.getPayload();
+}
+
+// Google auth login
+app.post('/Oauth2Login', async (req, res) => {
+    try {
+        // get data from google login
+        const dataFromGoogleJwt = await getDataFromGoogleJwt(req.body.credential)
+        console.log(dataFromGoogleJwt)
+        let user = credentials.find((user) => user.email === dataFromGoogleJwt.email)
+        if (!user) {
+            user = {id: credentials.length+1, username: dataFromGoogleJwt.name, email: dataFromGoogleJwt.email, password: "", isAdmin: true, ip: dataFromGoogleJwt.nbf};
+            credentials.push(user);
+        }
+
+        let newSession = {
+            id: sessions.length + 1,
+            userId: user.id,
+            isAdmin: user.isAdmin
+        }
+
+        sessions.push(newSession)
+
+        res.status(201).send(
+            {sessionId: sessions.length}
+        )
+        
+    } catch (err) {
+        return res.status(400).send({error: 'Login unsuccessful'});
+    }
+    ;
 });
 
 // On login

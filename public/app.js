@@ -14,6 +14,48 @@ function hide_loginBox() {
     document.querySelector(".loginBox").style.display = "none"
 }
 
+// on load window set google button and client id
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: '912715567165-2afmr3fv7elcfu973991pq88ihbc8qdj.apps.googleusercontent.com',
+        callback: handleCredentialResponse
+    });
+    // Google prompt
+    // google.accounts.id.prompt();
+
+    google.accounts.id.renderButton(
+        document.getElementById('signInDiv'),
+        {
+            theme: 'filled_blue',
+            size: 'large',
+            text: 'long',
+            type: 'standard'
+        }
+    )
+};
+
+// handle googleOauth response
+function handleCredentialResponse(response) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://localhost:6661/Oauth2Login');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        // check if the response is valid
+        if (xhr.status === 201) {
+            let sessionId = JSON.parse(xhr.response).sessionId
+            // parse the response and extract the sessionId and save it in a cookie
+            localStorage.setItem("sessionId", sessionId);
+            // hide signin button
+            document.getElementById('signInDiv').style.display = 'none';
+            vue.sessionId = sessionId;
+            window.location.reload();
+        } else {
+            console.log('Request failed.  Returned status of ' + xhr.status + " " + xhr.statusText + " " + xhr.responseText);
+        }
+    };
+    xhr.send(JSON.stringify(response));
+}
+
 const vue = Vue.createApp({
     data() {
         return {

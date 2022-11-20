@@ -35,6 +35,7 @@ function getLogsFromFile() {
     })
     .on("end", function () {
         loadedLogs = data
+        console.log(data)
     });
 }
 

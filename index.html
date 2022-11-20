@@ -10,6 +10,7 @@
 </head>
 
 <body>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <div id="app">
         <nav class="navbar navbar-dark bg-secondary">
             <h1 class="navbar-brand">In custody or prison</h1>
@@ -60,6 +61,7 @@
                     <input name="password" type="password" class="form-control" id="passwordInput" aria-describedby="passwordHelp" placeholder="Enter password">
                 </div>
                 <input @click="login()" type="button" class="submit btn btn-primary" value="Submit">
+                <div id="signInDiv" style="margin-top: 2em;"></div>
                 <p> {{ loginError }} </p>
             </form>
         </div>
