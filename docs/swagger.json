@@ -1,42 +1,304 @@
 {
-    "openapi": "3.0.2",
+    "swagger": "2.0",
     "info": {
-        "title": "criminals-API",
+        "title": "Jailbase",
         "version": "1.0.0",
-        "description": "### This is a Swagger UI for our Criminals API  \\n\\n### Error handling\\nErrors are presented using the HTTP status codes 400-599. The response include a more detailed explanation about the error in the body.\\n\\n```\\n{\\n  \\\"error\\\": \\\"Cleartext explanation of the error that occurred\\\"\\n}\\n```\\n\\n### Generic API errors\\nThese error responses can be returned by any of the described endpoints.\\n\\n| HTTP status  |  Description |\\n|---|---|\\n| 400| Bad input parameters or invalid request. More information can be found in the response body.\\n| 401| The consumer does not have access to the requested resource or the provided token is not valid.\\n| 404| The requested resource can not be found or the user does not have access to the resource.\\n| 5XX| A server error has occurred while processing the request."
+        "description": ""
     },
+    "host": "localhost:6661",
+    "basePath": "/",
+    "schemes": [
+        "https"
+    ],
     "paths": {
         "/criminals": {
             "get": {
                 "tags": [
-                    "crime",
-                    "murder"
+                    "/criminals"
                 ],
                 "responses": {
                     "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/criminal"
+                        }
+                    }
+                },
+                "summary": "Path used to list all criminals",
+                "description": "The REST endpoint/path used to list zero or more `criminal` entities.  This path contains a `GET` and operation to perform the list task."
+            }
+        },
+        "/criminals/{id}": {
+            "get": {
+                "tags": [
+                    "/criminals"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/criminal"
+                        }
+                    }
+                },
+                "summary": "Path used to list criminal by ID",
+                "description": "The REST endpoint/path used to list one `criminal` entity by id.  This path contains a `GET` operation to perform the list task."
+            }
+        },
+        "/login": {
+            "put": {
+                "tags": [
+                    "/login"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "username": {
+                                    "example": "any"
                                 },
-                                "examples": {
-                                    "List of criminals": {
-                                        "value": [
-                                            "Vin Diesel",
-                                            "Henry"
-                                        ]
-                                    }
+                                "password": {
+                                    "example": "any"
                                 }
                             }
                         },
-                        "description": "Returns a list of criminals"
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "201": {
+                        "description": "Created"
                     }
                 },
-                "description": "Returns a list of all criminals in API."
+                "summary": "Path used to login to the website.",
+                "description": "Logs the user into the website and creates a session."
             }
+        },
+        "/logout": {
+            "delete": {
+                "tags": [
+                    "/logout"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "sessionId": {
+                                    "example": "any"
+                                }
+                            }
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "Path used to log out of website",
+                "description": "Logs the user out of the website and deletes his session."
+            }
+        },
+        "/criminals/delete": {
+            "delete": {
+                "tags": [
+                    "/criminals"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "crim_id": {
+                                    "example": "any"
+                                }
+                            }
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "Authorize": []
+                    }
+                ],
+                "summary": "Path used to remove a criminal from the criminals list.",
+                "description": "The REST endpoint/path used to delete zero or more `criminal` entities.  This path contains a `POST` operation to perform the delete tasks."
+            }
+        },
+        "/criminals/edit": {
+            "patch": {
+                "tags": [
+                    "/criminals"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "index": {
+                                    "example": "any"
+                                },
+                                "name": {
+                                    "example": "any"
+                                },
+                                "crime": {
+                                    "example": "any"
+                                },
+                                "dob": {
+                                    "example": "any"
+                                },
+                                "desc": {
+                                    "example": "any"
+                                }
+                            }
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "Authorize": []
+                    }
+                ],
+                "summary": "Path used to edit a criminal in criminals.",
+                "description": "The REST endpoint/path used to edit zero or more `time` entities.  This path contains a `POST` operation to perform the edit tasks."
+            }
+        },
+        "/criminals/add": {
+            "post": {
+                "tags": [
+                    "/criminals"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "example": "any"
+                                },
+                                "crime": {
+                                    "example": "any"
+                                },
+                                "dob": {
+                                    "example": "any"
+                                },
+                                "long_desc": {
+                                    "example": "any"
+                                }
+                            }
+                        },
+                        "in": "body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "Authorize": []
+                    }
+                ],
+                "summary": "Path used to add a new criminal to criminals list",
+                "description": "The REST endpoint/path used to create zero or more `criminal` entities.  This path contains a `POST` operation to perform the create tasks."
+            }
+        },
+        "/logs": {
+            "get": {
+                "tags": [
+                    "/logs"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response - returns an array of `Logs` entities.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Logs"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Authorize": []
+                    }
+                ],
+                "operationId": "getLogs",
+                "summary": "Path used to list all logs.",
+                "description": "The REST endpoint/path used to list zero or more `list` entities.  This path contains a `GET` and operation to perform the list task."
+            }
+        }
+    },
+    "definitions": {
+        "criminal": {
+            "title": "Criminal",
+            "description": "",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/criminal"
+            },
+            "example": [
+                {
+                    "id": 1,
+                    "name": "Vin Diesel",
+                    "crime": "Speeding",
+                    "img_link": "vin-diesel.jpg",
+                    "dob": "1976-01-12",
+                    "long_desc": "Wanted for speeding countlesly in the fast and furious series."
+                }
+            ]
+        },
+        "Logs": {
+            "description": "",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Logs"
+            },
+            "example": {
+                "time": "2022/11/21 15:19:02",
+                "user": "admin",
+                "eventMethod": "Login",
+                "eventData": "username: admin",
+                "ip": "123.456.78.91"
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Authorize": {
+            "type": "basic"
         }
     }
 }

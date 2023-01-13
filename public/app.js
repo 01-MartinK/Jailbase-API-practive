@@ -258,8 +258,8 @@ const vue = Vue.createApp({
             var crimCrime = document.querySelector("#crimeUpdInput").value
             var crimDob = document.querySelector("#dobUpdInput").value
             var crimDesc = document.querySelector("#descriptionUpdInput").value
-            await fetch("https://localhost:6661/editCriminal", {
-            method: "POST",
+            await fetch("https://localhost:6661/criminals/edit", {
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -283,7 +283,7 @@ const vue = Vue.createApp({
     deleteCriminal: async function(id) { // delete a criminal via it's id
         console.log(this.index)
         await fetch("https://localhost:6661/criminals/delete", {
-        method: "POST",
+        method: "DELETE",
         headers: {
             "Content-Type": "application/json"
         },

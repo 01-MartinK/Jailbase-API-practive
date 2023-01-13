@@ -154,7 +154,7 @@ app.post('/logout', (req, res) => {
 // Use the swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.post('/criminals/delete', (req, res) => {
+app.delete('/criminals/delete', (req, res) => {
     var user = credentials.find((user) => req.body.sessionId.userId = user.id)
     console.log(req.body.crim_id)
     var crim_id = req.body.crim_id;
@@ -178,7 +178,7 @@ app.post('/criminals/delete', (req, res) => {
 })
 
 // On edit criminal
-app.post('/editCriminal', (req, res) => {
+app.patch('/criminals/edit', (req, res) => {
     var user = credentials.find((user) => req.body.sessionId.userId = user.id)
     const old_criminal = criminals[req.body.index -1];
     let changes = ""
