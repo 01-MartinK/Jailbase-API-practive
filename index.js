@@ -27,9 +27,9 @@ const serv = https.createServer({
 
 // template database with criminals
 var criminals = [
-    { id: 1, name: 'Vin Diesel', crime: 'Speeding', img_link: 'vin-diesel.jpg', dob: "1976-01-12", long_desc: 'Wanted for speeding countlesly in the fast and furious series.' },
-    { id: 2, name: 'Henry', crime: 'Racism', img_link: 'henry.jpg', dob: "2004-02-18", long_desc: 'Henry is a natural racist' },
-    { id: 3, name: 'Jason Voorhees', crime: 'Murder', img_link: 'jason-voorhees.jpg', dob: "1956-06-24", long_desc: "Jason Voorhees is a third-degree murderer. He's prime spot for killing is a camping site." },
+    { id: 1, name: 'Vin Diesel', crime: 'Speeding', img_link: 'vin-diesel.jpg', dob: "1976-01-12", long_desc: 'Wanted for speeding countlessly in the fast and furious series.' },
+    { id: 2, name: 'Henry', crime: 'Hate crimes', img_link: 'henry.jpg', dob: "2004-02-18", long_desc: 'Henry has commited multiple hate crimes' },
+    { id: 3, name: 'Jason Voorhees', crime: 'Murder', img_link: 'jason-voorhees.jpg', dob: "1956-06-24", long_desc: "Jason Voorhees is a third-degree murderer. His prime spot for killing is a camping site." },
 ];
 
 // admin credentials
@@ -45,8 +45,18 @@ function sleep(ms) {
     });
   }
 
-  // sessions
+// sessions
 let sessions = []
+
+function createSession(uID, isA) {
+    let newSession = {
+        id: Math.round(Math.random() * 100000000),
+        userID: uID,
+        isAdmin: isA
+    }
+    sessions.push(newSession)
+    return newSession
+}
 
 // websocket prisoner cells
 let prisonerCells = []
@@ -62,11 +72,13 @@ app.use(express.json())
 // Get all the criminals
 app.get('/criminals', (req, res) => {
     res.send(criminals)
-    //console.log(criminals)
 })
 
 // Send criminal data to client
 app.get('/criminals/:id', (req, res) => {
+    if (typeof criminals[req.params.id - 1] === 'undefined') {
+        return res.status(404).send({ error: "Criminal not found" })
+    }
     res.send(criminals[req.params.id - 1])
 });
 
@@ -77,8 +89,11 @@ app.get('/adminCheck', (req, res) => {
 
 // get logs for logger
 app.get('/logs', (req, res) => {
+    if (!(credentials.find((user) => req.headers.authorization = user.id)).isAdmin) {
+        return res.status(401).send({error: 'You are not logged in'})
+    }
     let logsData = logger.getLogs()
-    res.send(logsData)
+    res.status(200).send(logsData)
 });
 
 // get data from google token
@@ -102,16 +117,12 @@ app.post('/Oauth2Login', async (req, res) => {
             credentials.push(user);
         }
 
-        let newSession = {
-            id: sessions.length + 1,
-            userId: user.id,
-            isAdmin: user.isAdmin
-        }
+        let newSession = createSession(user.id, user.isAdmin)
 
         sessions.push(newSession)
 
         res.status(201).send(
-            {sessionId: sessions.length}
+            {sessionId: newSession.id}
         )
         
     } catch (err) {
@@ -121,51 +132,51 @@ app.post('/Oauth2Login', async (req, res) => {
 });
 
 // On login
-app.post('/login', (req, res) => {
+app.post('/sessions', (req, res) => {
+    if (!req.body.username || !req.body.password){
+        return res.status(400).send({error: "One or all params are missing"})
+    }
     const user = credentials.find((user) => user.username === req.body.username && user.password === req.body.password)
-    if (req.body.username == user.username && req.body.password == user.password) {
-        user.ip = req.body.ip
-        let newSession = {
-            id: sessions.length + 1,
-            userId: user.id,
-            isAdmin: user.isAdmin
-        }
-
-        logger.logEvent({user: user.username, eventMethod: "Login", eventData: [`username: ${user.username}`], ip: user.ip});
-        sessions.push(newSession)
-        res.status(201).send(
-            {sessionId: sessions.length}
-        )
+    if (!user) {
+        return res.status(401).send({ error: "Invalid username or password" })
     } else {
-        logger.logEvent({eventMethod: "Error", eventData: ["Wrong Credentials", req.body], ip: user.ip})
-        res.send({ error: "wrong credentials" })
+        user.ip = req.body.ip
+        let newSession = createSession(user.id, user.isAdmin);
+        console.log(newSession.id)
+        logger.logEvent({user: user.username, eventMethod: "Login", eventData: [`username: ${user.username}`], ip: user.ip});
+        res.status(201).send({sessionId: newSession.id})
     }
 })
 
 // On user logout
-app.post('/logout', (req, res) => {
+app.delete('/sessions', (req, res) => {
     sessions = sessions.filter((session) => session.id != req.body.sessionId);
     logger.logEvent({eventMethod: "Logout", eventData: req.body.sessionId.userId})
-
-    res.send("correct")
-    res.status(200).end()
+    res.status(204).end()
 })
 
 // Use the swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.delete('/criminals/delete', (req, res) => {
+app.delete('/criminals/:id', (req, res) => {
+    var user = credentials.find((user) => req.headers.authorization = user.id)
+    if (!user.isAdmin) {
+        return res.status(401).send({error: 'You are not logged in'})
+    }
+
+    if ((Number.isInteger(req.params.id) && parseInt(req.params.id) > 0)) {
+        return res.status(400).send({error: 'Invalid id'})
+    }
+
     var user = credentials.find((user) => req.body.sessionId.userId = user.id)
-    console.log(req.body.crim_id)
-    var crim_id = req.body.crim_id;
-    var new_list = [];
-    criminals.forEach(crim => {
-        if (crim.id !== crim_id)
-            new_list.push(crim)
-        else
-        logger.logEvent({user: user.username, eventMethod: "DeleteCriminal", eventData: `crim_id: ${crim.id} ${crim.name}`.replace(","," "), ip: user.ip})
-        })
-    criminals = new_list
+    var crim_id = parseInt(req.params.id);
+    let criminal = criminals.find((x) => x.id === crim_id);
+
+    if (!criminal) {
+        return res.status(404).send({error: 'Criminal not found'})
+    }
+
+    criminals = criminals.filter((criminal) => criminal.id !== crim_id)
 
     // reset all of their id's
     var i = 1
@@ -173,37 +184,55 @@ app.delete('/criminals/delete', (req, res) => {
         crim.id = i
         i += 1
     })
-    res.send("correct")
+    logger.logEvent({user: user.username, eventMethod: "DeleteCriminal", eventData: `crim_id: ${criminal.id} ${criminal.name}`.replace(","," "), ip: user.ip})
+    res.status(204).send("Deleted successfully")
     io.emit('update_prisoner', criminals)
 })
 
 // On edit criminal
-app.patch('/criminals/edit', (req, res) => {
-    var user = credentials.find((user) => req.body.sessionId.userId = user.id)
-    const old_criminal = criminals[req.body.index -1];
+app.patch('/criminals/:id', (req, res) => {
+    var user = credentials.find((user) => req.headers.authorization = user.id)
+    if (!user.isAdmin) {
+        return res.status(401).send({error: 'You are not logged in'})
+    }
+
+    if ((Number.isInteger(req.params.id) && parseInt(req.params.id) > 0)) {
+        return res.status(400).send({error: 'Invalid id'})
+    }
+
+    const old_criminal = criminals[req.params.id - 1];
+
+    if (!old_criminal) {
+        return res.status(404).send({error: 'Criminal not found'})
+    }
+
+    if (!req.body.name || !req.body.crime || !req.body.dob || !req.body.desc) {
+        return res.status(400).send({error: 'One or all params are empty'})
+    }
+
     let changes = ""
 
     let new_criminal = {};
     new_criminal.id = old_criminal.id
     new_criminal.name = req.body.name;
     new_criminal.crime = req.body.crime;
-    new_criminal.img_link = criminals[req.body.index -1].img_link;
+    new_criminal.img_link = criminals[req.params.id -1].img_link;
     new_criminal.dob = req.body.dob;
     new_criminal.long_desc = req.body.desc;
 
-    criminals[req.body.index - 1] = new_criminal
+    criminals[req.params.id - 1] = new_criminal;
 
     for(key in old_criminal) {
         if (key != "id")
             if (old_criminal[key] !== new_criminal[key]){
                 changes += (`crim_id: ${new_criminal.id} - old ${key}: ${old_criminal[key]} new ${key}: ${new_criminal[key]}`)
             }
-    }
+    };
 
-    logger.logEvent({user: user.username, eventMethod: "EditCriminal", eventData: changes, ip: user.ip})
+    logger.logEvent({user: user.username, eventMethod: "EditCriminal", eventData: changes, ip: user.ip});
 
-    res.send("correct")
-    io.emit('update_prisoner', criminals)
+    res.status(201).send({message: "Criminal edited successfully"});
+    io.emit('update_prisoner', criminals);
 })
 
 app.get('/', (req, res) => {
@@ -218,15 +247,23 @@ app.get('/', (req, res) => {
 })
 
 // On Criminal add
-app.post('/criminals/add', (req, res) => {
-    var user = credentials.find((user) => req.body.sessionId.userId = user.id)
-    var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc }
-    criminals.push(criminal)
+app.post('/criminals', (req, res) => {
+    var user = credentials.find((user) => req.headers.authorization = user.id)
+    if (!user.isAdmin) {
+        return res.status(401).send({error: 'You are not logged in'})
+    }
 
-    logger.logEvent({user: user.username, eventMethod: "AddCriminal", eventData: [criminal.id, criminal.name], ip: user.ip})
+    if (!req.body.name || !req.body.crime || !req.body.dob || !req.body.long_desc) {
+        return res.status(400).send({error: 'One or all params are missing'})
+    }
 
-    res.send("correct")
-    io.emit('update_prisoner', criminals)
+    var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc };
+    criminals.push(criminal);
+
+    logger.logEvent({user: user.username, eventMethod: "AddCriminal", eventData: [criminal.id, criminal.name], ip: user.ip});
+
+    res.status(201).send({message: "Added successfully"});
+    io.emit('update_prisoner', criminals);
 })
 
 // websocket io

@@ -141,12 +141,13 @@ const vue = Vue.createApp({
                     ip: this.ip
                 })
             };
-            await fetch("https://localhost:6661/login", requestOptions)
+            await fetch("https://localhost:6661/sessions", requestOptions)
             .then(response => response.json())
             .then(data => {
                 
-                if (data.error)
-                this.loginError = data.error;
+                if (data.error) {
+                    this.loginError = data.error;
+                }    
                 if (data.sessionId) {
                     this.sessionId = data.sessionId;
                     localStorage.setItem('sessionId', this.sessionId);
@@ -167,7 +168,7 @@ const vue = Vue.createApp({
         },
         logout: async function() { // logout method
             const requestOptions = {
-                method: "POST",
+                method: "DELETE",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -175,7 +176,7 @@ const vue = Vue.createApp({
                     sessionId: Number(this.sessionId)
                 })
             };
-            await fetch("https://localhost:6661/logout", requestOptions)
+            await fetch("https://localhost:6661/sessions", requestOptions)
             .then(() => {
                 this.sessionId = null;
                 localStorage.clear();
@@ -191,6 +192,7 @@ const vue = Vue.createApp({
             const request = {
                 method: "POST",
                 headers: {
+                    "Authorization": this.sessionId,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
@@ -198,20 +200,26 @@ const vue = Vue.createApp({
                     crime: crime_value,
                     dob: dob_value,
                     img_link: "placeholder-300x300.webp",
-                    long_desc: desc_value,
-                    sessionId: this.sessionId
+                    long_desc: desc_value
                 })
             }
             
-            await fetch("https://localhost:6661/criminals/add", request)
-            .then(() => {
-                window.location.reload();
+            await fetch("https://localhost:6661/criminals", request)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error){
+                    alert(data.error);
+                } else {
+                    alert(data.message)
+                    window.location.reload()
+                }
             })
         },
         getLogs: async function() { // get logs from server
             const requestOptions = {
                 method: "GET",
                 headers: {
+                    "Authorization": this.sessionId,
                     "Content-Type": "application/json"
                 }
             };
@@ -223,12 +231,13 @@ const vue = Vue.createApp({
         },
         getById: async function(id) { // get criminal by id
             this.index = id
-            console.log(id - 1)
-            document.querySelector("#detCrimName").textContent = this.criminals[id - 1].name
-            document.querySelector("#detCrimCrime").textContent = "Crimes commited: " + this.criminals[id - 1].crime
-            document.querySelector("#detCrimDob").textContent = ".  " + this.criminals[id - 1].dob
-            document.querySelector("#detCrimDesc").textContent = this.criminals[id - 1].long_desc
-            document.querySelector("#detCrimId").textContent = id
+            if (this.criminals[id - 1]) {
+                document.querySelector("#detCrimName").textContent = this.criminals[id - 1].name
+                document.querySelector("#detCrimCrime").textContent = "Crimes commited: " + this.criminals[id - 1].crime
+                document.querySelector("#detCrimDob").textContent = ".  " + this.criminals[id - 1].dob
+                document.querySelector("#detCrimDesc").textContent = this.criminals[id - 1].long_desc
+                document.querySelector("#detCrimId").textContent = id
+            }    
         },
         updateCells: async function() { // update cells via websocket
             if (prisonerCells.length != 0) {
@@ -258,21 +267,26 @@ const vue = Vue.createApp({
             var crimCrime = document.querySelector("#crimeUpdInput").value
             var crimDob = document.querySelector("#dobUpdInput").value
             var crimDesc = document.querySelector("#descriptionUpdInput").value
-            await fetch("https://localhost:6661/criminals/edit", {
+            await fetch("https://localhost:6661/criminals/" + this.index, {
             method: "PATCH",
             headers: {
+                "Authorization": this.sessionId,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                index: this.index,
                 name: crimName,
                 crime: crimCrime,
                 dob: crimDob,
-                desc: crimDesc,
-                sessionId: this.sessionId
+                desc: crimDesc
             })
-        }).then(() => {
-            window.location.reload();
+        }).then(response => response.json())
+        .then(data => {
+            if (data.error){
+                alert(data.error);
+            } else {
+                alert(data.message)
+                window.location.reload()
+            }
         })
     },
     CellSelected: async function(cell) { // set criminal to cell
@@ -282,13 +296,12 @@ const vue = Vue.createApp({
     },
     deleteCriminal: async function(id) { // delete a criminal via it's id
         console.log(this.index)
-        await fetch("https://localhost:6661/criminals/delete", {
+        await fetch("https://localhost:6661/criminals/" + this.index, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            crim_id: this.index,
             sessionId: this.sessionId
         })
     }).then(() => {
