@@ -1,238 +1,495 @@
 {
-    "swagger": "2.0",
+    "openapi": "3.0.2",
     "info": {
         "title": "Jailbase",
         "version": "1.0.0",
         "description": ""
     },
-    "host": "localhost:6661",
-    "basePath": "/",
-    "schemes": [
-        "https"
+    "servers": [
+        {
+            "url": "https://localhost:6661/",
+            "description": ""
+        }
     ],
     "paths": {
-        "/criminals": {
+        "/criminals/{criminalsId}": {
+            "summary": "Path used to manage a single criminal.",
+            "description": "The REST endpoint/path used to get, update, and delete single instances of an `criminals`.  This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and delete tasks, respectively.",
             "get": {
                 "tags": [
                     "/criminals"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/criminal"
-                        }
-                    }
-                },
-                "summary": "Path used to list all criminals",
-                "description": "The REST endpoint/path used to list zero or more `criminal` entities.  This path contains a `GET` and operation to perform the list task."
-            }
-        },
-        "/criminals/{id}": {
-            "get": {
-                "tags": [
-                    "/criminals"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/criminal"
-                        }
-                    }
-                },
-                "summary": "Path used to list criminal by ID",
-                "description": "The REST endpoint/path used to list one `criminal` entity by id.  This path contains a `GET` operation to perform the list task."
-            }
-        },
-        "/login": {
-            "put": {
-                "tags": [
-                    "/login"
-                ],
-                "parameters": [
-                    {
-                        "name": "body",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "username": {
-                                    "example": "any"
-                                },
-                                "password": {
-                                    "example": "any"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/criminals"
                                 }
                             }
                         },
-                        "in": "body"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                        "description": "Successful response - returns a single `criminals`."
                     },
-                    "201": {
-                        "description": "Created"
-                    }
-                },
-                "summary": "Path used to login to the website.",
-                "description": "Logs the user into the website and creates a session."
-            }
-        },
-        "/logout": {
-            "delete": {
-                "tags": [
-                    "/logout"
-                ],
-                "parameters": [
-                    {
-                        "name": "body",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "sessionId": {
-                                    "example": "any"
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "404": {
+                                        "value": {
+                                            "error": "Criminal not found"
+                                        }
+                                    }
                                 }
                             }
                         },
-                        "in": "body"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                        "description": "Criminal not found"
                     }
                 },
-                "summary": "Path used to log out of website",
-                "description": "Logs the user out of the website and deletes his session."
-            }
-        },
-        "/criminals/delete": {
+                "security": [
+                    {}
+                ],
+                "operationId": "getcriminal",
+                "summary": "Get a criminal",
+                "description": "Gets the details of a single instance of a `criminals`."
+            },
             "delete": {
                 "tags": [
                     "/criminals"
                 ],
-                "parameters": [
-                    {
-                        "name": "body",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "crim_id": {
-                                    "example": "any"
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/message"
+                                },
+                                "examples": {
+                                    "200": {
+                                        "value": {
+                                            "message": "Deleted criminal successfully"
+                                        }
+                                    }
                                 }
                             }
                         },
-                        "in": "body"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "401": {
+                                        "value": {
+                                            "error": "Invalid ID"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Invalid ID"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "401": {
+                                        "value": {
+                                            "error": "You need to log in"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "404": {
+                                        "value": {
+                                            "error": "Criminal not found"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Criminal not found"
                     }
                 },
                 "security": [
                     {
-                        "Authorize": []
+                        "Bearer": []
                     }
                 ],
-                "summary": "Path used to remove a criminal from the criminals list.",
-                "description": "The REST endpoint/path used to delete zero or more `criminal` entities.  This path contains a `POST` operation to perform the delete tasks."
-            }
-        },
-        "/criminals/edit": {
+                "operationId": "deletecriminal",
+                "summary": "Delete a criminal",
+                "description": "Deletes an existing `criminal`."
+            },
             "patch": {
+                "requestBody": {
+                    "description": "Edits criminal",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/criminals"
+                            },
+                            "examples": {
+                                "Criminal edit": {
+                                    "value": {
+                                        "name": "Jeffery Dahmer",
+                                        "crime": "Serial killer",
+                                        "dob": "1966-02-17",
+                                        "desc": "One of the most famous serial killers"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "tags": [
                     "/criminals"
                 ],
-                "parameters": [
-                    {
-                        "name": "body",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "index": {
-                                    "example": "any"
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/message"
                                 },
-                                "name": {
-                                    "example": "any"
-                                },
-                                "crime": {
-                                    "example": "any"
-                                },
-                                "dob": {
-                                    "example": "any"
-                                },
-                                "desc": {
-                                    "example": "any"
+                                "examples": {
+                                    "200": {
+                                        "value": {
+                                            "message": "Criminal edited successfully"
+                                        }
+                                    }
                                 }
                             }
                         },
-                        "in": "body"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                        "description": "Edited successfully"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "400": {
+                                        "value": {
+                                            "error": "Invalid ID"
+                                        }
+                                    },
+                                    "400-2": {
+                                        "value": {
+                                            "error": "One or all params are missing"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "401": {
+                                        "value": {
+                                            "error": "You are not logged in"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Criminal not found"
                     }
                 },
                 "security": [
                     {
-                        "Authorize": []
+                        "Bearer": []
                     }
                 ],
-                "summary": "Path used to edit a criminal in criminals.",
-                "description": "The REST endpoint/path used to edit zero or more `time` entities.  This path contains a `POST` operation to perform the edit tasks."
+                "operationId": "editcriminal",
+                "summary": "Update a criminal",
+                "description": "Updates an existing `criminal`."
+            },
+            "parameters": [
+                {
+                    "name": "criminalsId",
+                    "description": "A unique identifier for a `criminal`.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/criminals": {
+            "summary": "Path used to manage the list of criminals.",
+            "description": "The REST endpoint/path used to list and create zero or more `criminals` entities.  This path contains a `GET` and `POST` operation to perform the list and create tasks, respectively.",
+            "get": {
+                "tags": [
+                    "/criminals"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/criminals"
+                                }
+                            }
+                        },
+                        "description": "Successful response - returns an array of `criminals` entities."
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "operationId": "getcriminals",
+                "summary": "List All criminals",
+                "description": "Gets a list of all `criminals` entities."
+            },
+            "post": {
+                "requestBody": {
+                    "description": "A new `criminals` to be created.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/criminals"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "/criminals"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/message"
+                                },
+                                "examples": {
+                                    "201": {
+                                        "value": {
+                                            "message": "Added successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful response."
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "400": {
+                                        "value": {
+                                            "error": "One or all params are missing"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "One or all params are missing"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "401": {
+                                        "value": {
+                                            "error": "You have to login"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "operationId": "createcriminals",
+                "summary": "Create a criminal",
+                "description": "Creates a new instance of a `criminals`."
             }
         },
-        "/criminals/add": {
+        "/sessions": {
+            "summary": "Path used to manage the list of sessions.",
+            "description": "The REST endpoint/path used to list and create zero or more `sessions` entities.  This path contains a `GET` and `POST` operation to perform the list and create tasks, respectively.",
             "post": {
+                "requestBody": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/sessionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "tags": [
-                    "/criminals"
+                    "/sessions"
                 ],
-                "parameters": [
-                    {
-                        "name": "body",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "example": "any"
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/sessionResponse"
                                 },
-                                "crime": {
-                                    "example": "any"
-                                },
-                                "dob": {
-                                    "example": "any"
-                                },
-                                "long_desc": {
-                                    "example": "any"
+                                "examples": {
+                                    "201": {
+                                        "value": {
+                                            "sessionId": 1234567
+                                        }
+                                    }
                                 }
                             }
                         },
-                        "in": "body"
+                        "description": "Successful login"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "400": {
+                                        "value": {
+                                            "error": "One or all params are missing"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "One or all params are missing"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "404": {
+                                        "value": {
+                                            "error": "Invalid username or password"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Invalid username or password"
                     }
+                },
+                "security": [
+                    {}
+                ],
+                "operationId": "createsessions",
+                "summary": "Create a session",
+                "description": ""
+            },
+            "delete": {
+                "tags": [
+                    "/sessions"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/message"
+                                },
+                                "examples": {
+                                    "200": {
+                                        "value": {
+                                            "message": "Logged out successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful response"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "You have to login": {
+                                        "value": {
+                                            "error": "You have to login"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "SessionId does not have an user associated with it": {
+                                        "value": {
+                                            "error": "SessionId does not have an user associated with it"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Session not found"
                     }
                 },
                 "security": [
                     {
-                        "Authorize": []
+                        "Bearer": []
                     }
                 ],
-                "summary": "Path used to add a new criminal to criminals list",
-                "description": "The REST endpoint/path used to create zero or more `criminal` entities.  This path contains a `POST` operation to perform the create tasks."
+                "summary": "Delete a session"
             }
         },
         "/logs": {
@@ -242,63 +499,238 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response - returns an array of `Logs` entities.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Logs"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/logs"
+                                },
+                                "examples": {
+                                    "200": {
+                                        "value": {
+                                            "time": "2023/01/18 15:55:39",
+                                            "user": "admin",
+                                            "eventMethod": "Login",
+                                            "eventData": "username: admin",
+                                            "ip": "undefined"
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        },
+                        "description": "Successful response - returns an array of `logs` entities."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                },
+                                "examples": {
+                                    "401": {
+                                        "value": {
+                                            "error": "You need to log in"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
                     {
-                        "Authorize": []
+                        "Bearer": []
                     }
                 ],
-                "operationId": "getLogs",
-                "summary": "Path used to list all logs.",
-                "description": "The REST endpoint/path used to list zero or more `list` entities.  This path contains a `GET` and operation to perform the list task."
+                "operationId": "getlogs",
+                "summary": "List logs",
+                "description": "Get a list of all `logs`"
             }
         }
     },
-    "definitions": {
-        "criminal": {
-            "title": "Criminal",
-            "description": "",
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/criminal"
-            },
-            "example": [
-                {
-                    "id": 1,
-                    "name": "Vin Diesel",
-                    "crime": "Speeding",
-                    "img_link": "vin-diesel.jpg",
-                    "dob": "1976-01-12",
-                    "long_desc": "Wanted for speeding countlesly in the fast and furious series."
+    "components": {
+        "schemas": {
+            "criminals": {
+                "title": "Root Type for criminals",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "crime": {
+                        "type": "string"
+                    },
+                    "img_link": {
+                        "type": "string"
+                    },
+                    "dob": {
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "long_desc": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": 4,
+                    "name": "Jeffery Dahmer",
+                    "crime": "Serial killer",
+                    "img_link": "jeffery-dahmer.jpg",
+                    "dob": "1966-02-10",
+                    "long_desc": "Known for killing multiple people"
                 }
-            ]
+            },
+            "sessionRequest": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "password": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "username": "admin",
+                    "password": "qwerty"
+                }
+            },
+            "sessionResponse": {
+                "description": "",
+                "required": [
+                    "sessionId"
+                ],
+                "type": "object",
+                "properties": {
+                    "sessionId": {
+                        "format": "int32",
+                        "description": "",
+                        "type": "integer"
+                    }
+                },
+                "example": {
+                    "sessionId": 12345678
+                }
+            },
+            "error": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "error": "string"
+                }
+            },
+            "message": {
+                "title": "Root Type for message",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "message": "Added successfully"
+                }
+            },
+            "logs": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "user": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "eventMethod": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "eventData": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "ip": {
+                        "description": "",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "time": "some text",
+                    "user": "some text",
+                    "eventMethod": "some text",
+                    "eventData": "some text",
+                    "ip": "some text"
+                }
+            }
         },
-        "Logs": {
+        "securitySchemes": {
+            "Bearer": {
+                "scheme": "bearer",
+                "type": "http"
+            }
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "definitions": {
+        "criminals": {
             "description": "",
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/Logs"
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "crime": {
+                    "description": "",
+                    "type": "string"
+                },
+                "img_link": {
+                    "description": "",
+                    "type": "string"
+                },
+                "dob": {
+                    "format": "date",
+                    "description": "",
+                    "type": "string"
+                },
+                "long_desc": {
+                    "description": "",
+                    "type": "string"
+                }
             },
             "example": {
-                "time": "2022/11/21 15:19:02",
-                "user": "admin",
-                "eventMethod": "Login",
-                "eventData": "username: admin",
-                "ip": "123.456.78.91"
+                "id": 4,
+                "name": "Jeffery Dahmer",
+                "crime": "Serial killer",
+                "img_link": "jeffery-dahmer.jpg",
+                "dob": "1966-02-10",
+                "long_desc": "Known for killing multiple people"
             }
-        }
-    },
-    "securityDefinitions": {
-        "Authorize": {
-            "type": "basic"
         }
     }
 }
