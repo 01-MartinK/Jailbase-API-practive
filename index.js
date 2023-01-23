@@ -13,6 +13,7 @@ const googleOAuth2Client = new OAuth2Client('912715567165-2afmr3fv7elcfu973991pq
 
 // for logging events
 const logger = require('./logger.js');
+const { nextTick } = require('process');
 
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
@@ -58,6 +59,32 @@ function createSession(uID, isA) {
     return newSession
 }
 
+function getToken(req) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    req.token = token;
+    return req.token;
+}
+
+function requireLogin(req, res, next) {
+    const token = Number(getToken(req));
+    if (!token) {
+        return res.status(401).send({error: 'You are not logged in'})
+    }
+
+    res.locals.userSession = sessions.find(s => s.id === token);
+    if (!res.locals.userSession) {
+        return res.status(401).send({error: 'Invalid token'})
+    }
+
+    res.locals.user = credentials.find(c => c.id === res.locals.userSession.userID)
+    if (!res.locals.user) {
+        return res.status.send({error: 'SessionId does not have an user associated with it'})
+    }
+
+    next()
+}
+
 // websocket prisoner cells
 let prisonerCells = []
 
@@ -82,16 +109,8 @@ app.get('/criminals/:id', (req, res) => {
     res.send(criminals[req.params.id - 1])
 });
 
-// On admin check
-app.get('/adminCheck', (req, res) => {
-    res.send(sessions)
-})
-
 // get logs for logger
-app.get('/logs', (req, res) => {
-    if (!(credentials.find((user) => req.headers.authorization = user.id)).isAdmin) {
-        return res.status(401).send({error: 'You are not logged in'})
-    }
+app.get('/logs', requireLogin, (req, res) => {
     let logsData = logger.getLogs()
     res.status(200).send(logsData)
 });
@@ -110,12 +129,13 @@ app.post('/Oauth2Login', async (req, res) => {
     try {
         // get data from google login
         const dataFromGoogleJwt = await getDataFromGoogleJwt(req.body.credential)
-        console.log(dataFromGoogleJwt)
-        let user = credentials.find((user) => user.email === dataFromGoogleJwt.email)
+        //console.log(dataFromGoogleJwt)
+        let user = credentials.find((user) => user.email === dataFromGoogleJwt.email && userID)
         if (!user) {
             user = {id: credentials.length+1, username: dataFromGoogleJwt.name, email: dataFromGoogleJwt.email, password: "", isAdmin: true, ip: dataFromGoogleJwt.nbf};
             credentials.push(user);
         }
+        //console.log(credentials)
 
         let newSession = createSession(user.id, user.isAdmin)
 
@@ -142,33 +162,27 @@ app.post('/sessions', (req, res) => {
     } else {
         user.ip = req.body.ip
         let newSession = createSession(user.id, user.isAdmin);
-        console.log(newSession.id)
         logger.logEvent({user: user.username, eventMethod: "Login", eventData: [`username: ${user.username}`], ip: user.ip});
         res.status(201).send({sessionId: newSession.id})
     }
 })
 
 // On user logout
-app.delete('/sessions', (req, res) => {
-    sessions = sessions.filter((session) => session.id != req.body.sessionId);
-    logger.logEvent({eventMethod: "Logout", eventData: req.body.sessionId.userId})
-    res.status(204).end()
+app.delete('/sessions', requireLogin, (req, res) => {
+    sessions = sessions.filter(s => s.id !== res.locals.userSession.id);
+    logger.logEvent({eventMethod: "Logout", eventData: res.locals.user.id})
+    res.status(200).send({message: "Logged out successfully"}).end()
 })
 
 // Use the swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.delete('/criminals/:id', (req, res) => {
-    var user = credentials.find((user) => req.headers.authorization = user.id)
-    if (!user.isAdmin) {
-        return res.status(401).send({error: 'You are not logged in'})
-    }
+app.delete('/criminals/:id', requireLogin, (req, res) => {
 
     if ((Number.isInteger(req.params.id) && parseInt(req.params.id) > 0)) {
         return res.status(400).send({error: 'Invalid id'})
     }
 
-    var user = credentials.find((user) => req.body.sessionId.userId = user.id)
     var crim_id = parseInt(req.params.id);
     let criminal = criminals.find((x) => x.id === crim_id);
 
@@ -184,17 +198,13 @@ app.delete('/criminals/:id', (req, res) => {
         crim.id = i
         i += 1
     })
-    logger.logEvent({user: user.username, eventMethod: "DeleteCriminal", eventData: `crim_id: ${criminal.id} ${criminal.name}`.replace(","," "), ip: user.ip})
-    res.status(204).send("Deleted successfully")
+    logger.logEvent({user: res.locals.user.username, eventMethod: "DeleteCriminal", eventData: `crim_id: ${criminal.id} ${criminal.name}`.replace(","," "), ip: res.locals.user.ip})
+    res.status(200).send({message: "Deleted criminal successfully"})
     io.emit('update_prisoner', criminals)
 })
 
 // On edit criminal
-app.patch('/criminals/:id', (req, res) => {
-    var user = credentials.find((user) => req.headers.authorization = user.id)
-    if (!user.isAdmin) {
-        return res.status(401).send({error: 'You are not logged in'})
-    }
+app.patch('/criminals/:id', requireLogin, (req, res) => {
 
     if ((Number.isInteger(req.params.id) && parseInt(req.params.id) > 0)) {
         return res.status(400).send({error: 'Invalid id'})
@@ -229,9 +239,9 @@ app.patch('/criminals/:id', (req, res) => {
             }
     };
 
-    logger.logEvent({user: user.username, eventMethod: "EditCriminal", eventData: changes, ip: user.ip});
+    logger.logEvent({user: res.locals.user.username, eventMethod: "EditCriminal", eventData: changes, ip: res.locals.user.ip});
 
-    res.status(201).send({message: "Criminal edited successfully"});
+    res.status(200).send({message: "Criminal edited successfully"});
     io.emit('update_prisoner', criminals);
 })
 
@@ -247,12 +257,7 @@ app.get('/', (req, res) => {
 })
 
 // On Criminal add
-app.post('/criminals', (req, res) => {
-    var user = credentials.find((user) => req.headers.authorization = user.id)
-    if (!user.isAdmin) {
-        return res.status(401).send({error: 'You are not logged in'})
-    }
-
+app.post('/criminals', requireLogin, (req, res) => {
     if (!req.body.name || !req.body.crime || !req.body.dob || !req.body.long_desc) {
         return res.status(400).send({error: 'One or all params are missing'})
     }
@@ -260,7 +265,7 @@ app.post('/criminals', (req, res) => {
     var criminal = { id: criminals.length + 1, name: req.body.name, crime: req.body.crime, img_link: 'placeholder-300x300.webp', dob: req.body.dob, long_desc: req.body.long_desc };
     criminals.push(criminal);
 
-    logger.logEvent({user: user.username, eventMethod: "AddCriminal", eventData: [criminal.id, criminal.name], ip: user.ip});
+    logger.logEvent({user: res.locals.user.username, eventMethod: "AddCriminal", eventData: [criminal.id, criminal.name], ip: res.locals.user.ip});
 
     res.status(201).send({message: "Added successfully"});
     io.emit('update_prisoner', criminals);

@@ -16,12 +16,12 @@
         <nav class="navbar navbar-dark bg-secondary">
             <h1 class="navbar-brand">In custody or prison</h1>
             <div style="display: flex;">
-                <button onclick="show_loginBox()" id="loginBtn">Login</button>
+                <button onclick="show_loginBox()" id="loginBtn" v-if="!sessionId">Login</button>
                 <button class="specialButtons" id="adminButton" @click="getLogs()" data-bs-toggle="modal"
-                    data-bs-target="#logsModal">Logs</button>
-                <button onclick="show_criminalInsertPopup()" id="adminButton" class="specialButtons">Add
-                    Criminal</button>
-                <button @click="logout()" id="adminButton" class="specialButtons">Logout</button>
+                    data-bs-target="#logsModal" v-if="sessionId">Logs</button>
+                <button v-if="sessionId" onclick="show_criminalInsertPopup()" id="adminButton"
+                    class="specialButtons">Add Criminal</button>
+                <button v-if="sessionId" @click="logout()" id="adminButton" class="specialButtons">Logout</button>
             </div>
         </nav>
         <div class="add-box">
@@ -104,11 +104,13 @@
                         <p id="detCrimDesc"></p>
                     </div>
                     <div class="modal-footer">
-                        <button id="adminButton" type="button" @click="getCells()" class="btn btn-primary"
-                            data-bs-toggle="modal" data-bs-target="#cellModel">Assign Cell</button>
-                        <button id="adminButton" type="button" @click="edit()" class="btn btn-primary"
+                        <button v-if="sessionId" id="adminButton" type="button" @click="getCells()"
+                            class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cellModel">Assign
+                            Cell</button>
+                        <button v-if="sessionId" id="adminButton" type="button" @click="edit()" class="btn btn-primary"
                             data-bs-toggle="modal" data-bs-target="#editModel">Edit Criminal</button>
-                        <button id="adminButton" type="button" @click="deleteCriminal()" class="btn btn-primary">Delete
+                        <button v-if="sessionId" id="adminButton" type="button" @click="deleteCriminal()"
+                            class="btn btn-primary">Delete
                             Criminal</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <p id="detCrimId">1</p>

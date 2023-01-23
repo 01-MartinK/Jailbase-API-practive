@@ -17,6 +17,6 @@
     "fast-csv": "^4.3.6",
     "google-auth-library": "^8.7.0",
     "socket.io": "^4.5.2",
-    "swagger-ui-express": "^4.3.0"
+    "swagger-ui-express": "^4.6.0"
   }
 }

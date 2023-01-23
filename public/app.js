@@ -62,7 +62,6 @@ const vue = Vue.createApp({
             criminals: [],
             logs: [],
             prisonerCells: [],
-            admin: false,
             index: 0,
             loginError: "",
             sessionId: null,
@@ -106,22 +105,6 @@ const vue = Vue.createApp({
         } catch(problem){
             console.log(problem)
         }
-        
-        // admin check for admin rights
-        this.users = await (await fetch('https://localhost:6661/adminCheck')).json();
-        this.user = this.users.find((user) => user.id == this.sessionId)
-        
-        // check if user is admin
-        if (this.user) {
-            if (this.user.isAdmin == true) {
-                document.querySelector("#loginBtn").style.display = "none";
-                var cols = document.querySelectorAll('#adminButton');
-                for (i = 0; i < cols.length; i++) {
-                    cols[i].style.display = "block";
-                }
-            }
-        }
-
     },
     socket: {
         connect: () => {console.log("connected")}
@@ -151,10 +134,6 @@ const vue = Vue.createApp({
                 if (data.sessionId) {
                     this.sessionId = data.sessionId;
                     localStorage.setItem('sessionId', this.sessionId);
-                    if (data.isAdmin == true) {
-                        this.admin = true
-                    }
-                    console.log(this.admin)
                     window.location.reload();
                 }
             });
@@ -170,11 +149,9 @@ const vue = Vue.createApp({
             const requestOptions = {
                 method: "DELETE",
                 headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    sessionId: Number(this.sessionId)
-                })
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ' + this.sessionId
+                }
             };
             await fetch("https://localhost:6661/sessions", requestOptions)
             .then(() => {
@@ -192,8 +169,8 @@ const vue = Vue.createApp({
             const request = {
                 method: "POST",
                 headers: {
-                    "Authorization": this.sessionId,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ' + this.sessionId
                 },
                 body: JSON.stringify({
                     name: name_value,
@@ -219,8 +196,8 @@ const vue = Vue.createApp({
             const requestOptions = {
                 method: "GET",
                 headers: {
-                    "Authorization": this.sessionId,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ' + this.sessionId
                 }
             };
             await fetch("https://localhost:6661/logs", requestOptions)
@@ -270,8 +247,8 @@ const vue = Vue.createApp({
             await fetch("https://localhost:6661/criminals/" + this.index, {
             method: "PATCH",
             headers: {
-                "Authorization": this.sessionId,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": 'Bearer ' + this.sessionId
             },
             body: JSON.stringify({
                 name: crimName,
@@ -284,6 +261,7 @@ const vue = Vue.createApp({
             if (data.error){
                 alert(data.error);
             } else {
+                console.log(this.sessionId)
                 alert(data.message)
                 window.location.reload()
             }
@@ -299,11 +277,9 @@ const vue = Vue.createApp({
         await fetch("https://localhost:6661/criminals/" + this.index, {
         method: "DELETE",
         headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            sessionId: this.sessionId
-        })
+            "Content-Type": "application/json",
+            "Authorization": 'Bearer ' + this.sessionId
+        }
     }).then(() => {
         window.location.reload();
     })
